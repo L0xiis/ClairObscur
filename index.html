@@ -46,20 +46,20 @@
   <audio id="music" autoplay loop preload="auto" playsinline></audio>
 
   <script>
-    // Repositionner le titre pour qu'il soit toujours au centre entre le haut de l'écran et le haut de la barre
+    // Repositionner le titre : centré entre le haut de l'écran et le haut de la barre, avec un léger ajustement plus haut
     function positionCenter(){
       const pc = document.querySelector('.progress-container');
       const progressTop = window.innerHeight - (pc?.offsetHeight || 56);
-      const mid = progressTop / 2; // milieu entre le haut de l'écran et le haut de la barre
-      document.getElementById('center').style.top = mid + 'px';
+      const mid = progressTop / 2;
+      document.getElementById('center').style.top = (mid - 40) + 'px'; // -40px pour remonter légèrement
     }
     positionCenter();
     window.addEventListener('resize', positionCenter);
 
-    // 0) Backgrounds aléatoires: ajoute tes images ici
+    // 0) Backgrounds aléatoires
     const backgrounds = [
       './background.jpg',
-      './background2.png'
+      './background2.jpg'
     ];
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     (function setRandomBackground(){
@@ -88,7 +88,7 @@
     const music = document.getElementById('music');
     const playlist = [
       './Alicia.mp3',
-      './World.mp3',
+      // './autre_titre_1.mp3',
       // './autre_titre_2.mp3'
     ];
     music.src = pickRandom(playlist);
