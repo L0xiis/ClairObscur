@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Chargement du serveur...</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-  <!-- Préchargement audio pour démarrer plus tôt -->
-  <link rel="preload" as="audio" href="./music.mp3">
   <style>
     html, body {
       margin: 0;
@@ -48,15 +46,14 @@
   </style>
 </head>
 <body>
-  <h1>Clair Obscur : Pentacles<h1>
+  <h1>Clair Obscur : Pentacle</h1>
 
   <div class="progress-container">
     <div class="progress-bar" id="bar"></div>
   </div>
 
   <!-- Musique (remplacez music.mp3 par votre fichier) -->
-  <!-- Musique (remplacez music.mp3 par votre fichier) -->
-  <audio id="music" autoplay loop preload="auto" playsinline>
+  <audio id="music" autoplay loop>
     <source src="./Alicia.mp3" type="audio/mpeg" />
   </audio>
 
@@ -74,26 +71,12 @@
     }
     tick();
 
-    // Musique: volume et gestion (démarrage le plus tôt possible)
+    // Musique: volume et gestion
     const music = document.getElementById('music');
     function initMusic(){
-      try{ music.volume = 0.35; }catch(e){}
-      // Certaines pistes MP3 ont une micro-silence d'attaque; saute ~50 ms
-      const START_AT = 0.05;
-      const tryPlay = () => music.play().catch(()=>{});
-      // Dès que le fichier peut être lu complètement, on force la lecture
-      music.addEventListener('canplaythrough', () => {
-        if (music.currentTime < START_AT) { try { music.currentTime = START_AT; } catch(e){} }
-        tryPlay();
-      }, { once:true });
-      // Au cas où: tenter dès que le DOM est prêt et si l'onglet devient actif
-      document.addEventListener('DOMContentLoaded', tryPlay, { once:true });
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) tryPlay(); });
-      // Fallback mobile/embeds qui exigent une interaction
-      const resume = () => { tryPlay(); window.removeEventListener('pointerdown', resume); };
-      window.addEventListener('pointerdown', resume);
-      // Charge explicitement la source (utile sur certains hôtes)
-      try { music.load(); } catch(e){}
+      try{ music.volume = 0.3; }catch(e){}
+      const resume = () => music.play().catch(()=>{});
+      window.addEventListener('pointerdown', resume, { once:true });
     }
     initMusic();
   </script>
