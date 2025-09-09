@@ -80,3 +80,8 @@ let pct = 0; function tick(){ pct += Math.random()*2 + 0.5; if(pct>100) pct=100;
 
 // Web Audio API: fait réagir le titre et la barre à la musique
 const music = document.getElementById('music');
+const root = document.documentElement; const title = document.querySelector('h1');
+let audioCtx, analyser, data, raf;
+
+
+function setupAudio(){
