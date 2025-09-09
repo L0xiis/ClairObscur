@@ -1,87 +1,240 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Chargement du serveur...</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
-<link rel="preload" as="audio" href="./music.mp3">
-<style>
-:root{
---glow: 0.7; /* intensité de lueur (pilotée par la musique) */
---barSpeed: 6s; /* vitesse de l'onde sur la barre (pilotée par la musique) */
---accent1: #2e1f47;
---accent2: #5c3b91;
---accent3: #9d7bc0;
-}
-html, body { margin:0; padding:0; height:100%; overflow:hidden; font-family:'Cinzel Decorative',serif; }
-body {
-position:relative;
-background:url('./background.jpg') center/cover no-repeat fixed;
-display:flex; flex-direction:column; justify-content:center; align-items:center;
-}
-/* Vignette douce pour renforcer l'ambiance et la lisibilité du titre */
-.vignette{ position:fixed; inset:0; pointer-events:none; background:radial-gradient(transparent 50%, rgba(0,0,0,.45) 85%); }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chargement du serveur...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  <link rel="preload" as="audio" href="./music.mp3">
+  <style>
+    :root{
+      --glow: 0.7;          /* intensité de lueur (pilotée par la musique) */
+      --barSpeed: 6s;       /* vitesse de l'onde sur la barre (pilotée par la musique) */
+      --accent1: #2e1f47;
+      --accent2: #5c3b91;
+      --accent3: #9d7bc0;
+    }
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; font-family:'Cinzel Decorative',serif; }
+    body {
+      position:relative;
+      background:url('./background.jpg') center/cover no-repeat fixed;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+    }
+    /* Vignette douce pour renforcer l'ambiance et la lisibilité du titre */
+    .vignette{ position:fixed; inset:0; pointer-events:none; background:radial-gradient(transparent 50%, rgba(0,0,0,.45) 85%); }
 
+    /* Particules légères animées (poussière) */
+    #fx{ position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen; opacity:.25; }
 
-/* Particules légères animées (poussière) */
-#fx{ position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen; opacity:.25; }
+    h1 { color:#f5f1e8; font-size:60px; text-align:center;
+      text-shadow: 0 0 calc(10px * var(--glow)) rgba(255,255,255,.8), 0 0 calc(30px * var(--glow)) rgba(157,123,192,.6), 0 6px 18px rgba(0,0,0,.8);
+      z-index:2; margin:0; padding:0 16px;
+      transition: text-shadow .15s linear, transform .15s linear;
+    }
 
+    .progress-container { position:fixed; left:0; bottom:0; width:100%; height:56px; background:rgba(0,0,0,.68); box-shadow:inset 0 0 12px rgba(255,255,255,.18); overflow:hidden }
 
-h1 { color:#f5f1e8; font-size:60px; text-align:center;
-text-shadow: 0 0 calc(10px * var(--glow)) rgba(255,255,255,.8), 0 0 calc(30px * var(--glow)) rgba(157,123,192,.6), 0 6px 18px rgba(0,0,0,.8);
-z-index:2; margin:0; padding:0 16px;
-transition: text-shadow .15s linear, transform .15s linear;
-}
+    .progress-bar { position:relative; height:100%; width:0%; background:linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3)); box-shadow: 0 0 calc(25px * var(--glow)) rgba(156,120,192,.75); transition: width .45s ease; }
 
-
-.progress-container { position:fixed; left:0; bottom:0; width:100%; height:56px; background:rgba(0,0,0,.68); box-shadow:inset 0 0 12px rgba(255,255,255,.18); overflow:hidden }
-
-
-.progress-bar { position:relative; height:100%; width:0%; background:linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3)); box-shadow: 0 0 calc(25px * var(--glow)) rgba(156,120,192,.75); transition: width .45s ease; }
-
-
-/* Onde lumineuse qui parcourt la barre en boucle */
-.progress-bar::before{
-content:""; position:absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-background-size: 220% 100%; filter: blur(6px);
-animation: shimmer var(--barSpeed) linear infinite;
-mix-blend-mode: screen;
-}
-@keyframes shimmer{ from{ background-position: -120% 0; } to{ background-position: 120% 0; } }
-#viz-wrap{ display:flex; justify-content:center; align-items:flex-end; width:100%; pointer-events:none; position:relative; z-index:2; margin-bottom:8px; }
-#viz{ width:min(1100px, 90vw); height:78px; }
-/* Ligne de base (dessinée dans le canvas) */
-</style>
+    /* Onde lumineuse qui parcourt la barre en boucle */
+    .progress-bar::before{
+      content:""; position:absolute; inset:0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+      background-size: 220% 100%; filter: blur(6px);
+      animation: shimmer var(--barSpeed) linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes shimmer{ from{ background-position: -120% 0; } to{ background-position: 120% 0; } }
+      #viz-wrap{ display:flex; justify-content:center; align-items:flex-end; width:100%; pointer-events:none; position:relative; z-index:2; margin-bottom:8px; }
+    #viz{ width:min(1100px, 90vw); height:78px; }
+    /* Ligne de base (dessinée dans le canvas) */
+  </style>
 </head>
 <body>
-<!-- Visualiseur audio: ligne + barres synchronisées avec la musique -->
-<div id="viz-wrap" aria-hidden="true">
-<canvas id="viz"></canvas>
-</div>
-<h1>Clair Obscur : Pentacle</h1>
+  <!-- Visualiseur audio: ligne + barres synchronisées avec la musique -->
+  <div id="viz-wrap" aria-hidden="true">
+    <canvas id="viz"></canvas>
+  </div>
+  <h1>Clair Obscur : Pentacle</h1>
 
+  <div class="progress-container" aria-label="Chargement">
+    <div class="progress-bar" id="bar"></div>
+  </div>
 
-<div class="progress-container" aria-label="Chargement">
-<div class="progress-bar" id="bar"></div>
-</div>
+  <audio id="music" autoplay loop preload="auto" playsinline>
+    <source src="./music.mp3" type="audio/mpeg" />
+  </audio>
 
+  <script>
+    // Progression visuelle (peut être ajustée)
+    const bar = document.getElementById('bar');
+    let pct = 0; function tick(){ pct += Math.random()*2 + 0.5; if(pct>100) pct=100; bar.style.width = pct+'%'; if(pct<100){ setTimeout(tick, 700 + Math.random()*600); } } tick();
 
-<audio id="music" autoplay loop preload="auto" playsinline>
-<source src="./music.mp3" type="audio/mpeg" />
-</audio>
+    // Web Audio API: fait réagir le titre et la barre à la musique
+    const music = document.getElementById('music');
+    const root = document.documentElement; const title = document.querySelector('h1');
+    let audioCtx, analyser, data, raf;
 
+    function setupAudio(){
+      if(audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaElementSource(music);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 1024; // assez fin pour capter les pulsations
+      src.connect(analyser); analyser.connect(audioCtx.destination);
+      data = new Uint8Array(analyser.frequencyBinCount);
+      animateToBeat();
+    }
 
-<script>
-// Progression visuelle (peut être ajustée)
-const bar = document.getElementById('bar');
-let pct = 0; function tick(){ pct += Math.random()*2 + 0.5; if(pct>100) pct=100; bar.style.width = pct+'%'; if(pct<100){ setTimeout(tick, 700 + Math.random()*600); } } tick();
+    function levelFromSpectrum(){
+      analyser.getByteFrequencyData(data);
+      // Favorise les bas-médiums (cohérent avec une montée orchestrale)
+      const start = Math.floor(data.length*0.08), end = Math.floor(data.length*0.35);
+      let sum=0; for(let i=start;i<end;i++) sum+=data[i];
+      const avg = sum / (end-start);
+      return Math.min(1, (avg/140)); // normalisation douce
+    }
 
+    function animateToBeat(){
+      const lvl = levelFromSpectrum();
+      const glow = 0.6 + lvl*0.9; // 0.6 à 1.5
+      root.style.setProperty('--glow', glow.toFixed(2));
+      // vitesse de l'onde (plus la musique est forte, plus c'est rapide)
+      const speed = 8 - Math.min(6.5, lvl*6.5); // 8s -> 1.5s
+      root.style.setProperty('--barSpeed', speed.toFixed(2)+'s');
+      // légère pulsation du titre
+      title.style.transform = `scale(${1 + lvl*0.02})`;
+      raf = requestAnimationFrame(animateToBeat);
+    }
 
-// Web Audio API: fait réagir le titre et la barre à la musique
-const music = document.getElementById('music');
-const root = document.documentElement; const title = document.querySelector('h1');
-let audioCtx, analyser, data, raf;
+    // Lancer le son le plus tôt possible
+    function initMusic(){
+      try{ music.volume = 0.35; }catch(e){}
+      const START_AT = 0.05;
+      const tryPlay = () => { music.play().then(()=> setupAudio()).catch(()=>{}); };
+      music.addEventListener('canplaythrough', () => { if(music.currentTime < START_AT){ try{ music.currentTime = START_AT; }catch(e){} } tryPlay(); }, { once:true });
+      document.addEventListener('DOMContentLoaded', tryPlay, { once:true });
+      document.addEventListener('visibilitychange', () => { if(!document.hidden) tryPlay(); });
+      // interaction utilisateur si nécessaire
+      const resume = () => { if(audioCtx){ audioCtx.resume().catch(()=>{}); } tryPlay(); window.removeEventListener('pointerdown', resume); };
+      window.addEventListener('pointerdown', resume);
+      try{ music.load(); }catch(e){}
+    }
+    initMusic();
 
+    // Visualiseur audio (barres verticales au-dessus du titre)
+    (function(){
+      const canvas = document.getElementById('viz');
+      const wrap = document.getElementById('viz-wrap');
+      if(!canvas || !music) return;
+      const ctx = canvas.getContext('2d');
+      let audioCtx, analyser, data, raf;
 
-function setupAudio(){
+      function resize(){
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.floor(rect.width * devicePixelRatio);
+        canvas.height = Math.floor(rect.height * devicePixelRatio);
+      }
+      resize();
+      addEventListener('resize', resize);
+
+      function ensureAudio(){
+        if(audioCtx) return;
+        audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+        const src = audioCtx.createMediaElementSource(music);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024; // résolution suffisante
+        src.connect(analyser); analyser.connect(audioCtx.destination);
+        data = new Uint8Array(analyser.frequencyBinCount);
+      }
+
+      function draw(){
+        if(!analyser) return raf=requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(data);
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+
+        // Couleurs et style en harmonie avec le thème
+        const base = 'rgba(245, 241, 232, 0.85)'; // #f5f1e8
+        const tip = 'rgba(157, 123, 192, 0.95)';  // violet
+        const bgLine = 'rgba(255,255,255,0.15)';
+
+        // Ligne de base
+        const baseline = Math.floor(h*0.82);
+        ctx.strokeStyle = bgLine; ctx.lineWidth = Math.max(2, h*0.02);
+        ctx.beginPath(); ctx.moveTo(0, baseline); ctx.lineTo(w, baseline); ctx.stroke();
+
+        // Barres
+        const barGap = Math.max(2, Math.floor(w/220));
+        const barWidth = Math.max(3*devicePixelRatio, Math.floor((w/(barGap+3)) / 28));
+        const count = Math.min(180, Math.floor(w/(barWidth+barGap)));
+        const step = Math.floor(data.length / (count*1.2));
+        let x = 0;
+        for(let i=0;i<count;i++){
+          let sum=0; let c=0; for(let k=0;k<step;k++){ const idx=i*step+k; if(idx<data.length){ sum+=data[idx]; c++; } }
+          const avg = c? sum/c : 0;
+          const norm = Math.min(1, avg/180); // normalisation douce
+          const barH = Math.max(4*devicePixelRatio, norm * (h*0.72));
+          const y = baseline - barH;
+          // dégradé vertical
+          const grad = ctx.createLinearGradient(0,y,0,baseline);
+          grad.addColorStop(0, tip); grad.addColorStop(1, base);
+          ctx.fillStyle = grad;
+          // barres arrondies
+          const r = Math.min(barWidth*0.45, 8*devicePixelRatio);
+          roundRect(ctx, x, y, barWidth, barH, r);
+          ctx.fill();
+          x += barWidth + barGap;
+        }
+        raf=requestAnimationFrame(draw);
+      }
+
+      function roundRect(ctx, x, y, w, h, r){
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.closePath();
+      }
+
+      // Démarrage lié à la musique
+      function startViz(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended'){ audioCtx.resume().catch(()=>{}); } cancelAnimationFrame(raf); draw(); }
+      music.addEventListener('play', startViz);
+      music.addEventListener('pause', ()=> cancelAnimationFrame(raf));
+      if(!music.paused) startViz();
+    })();
+
+    // Particules fines (poussière lumineuse)
+    const c = document.getElementById('fx'); const ctx = c.getContext('2d');
+    function size(){ c.width = innerWidth; c.height = innerHeight; } size(); addEventListener('resize', size);
+    const N = 80; const P = []; // un peu parcimonieux
+    for(let i=0;i<N;i++) P.push({ x: Math.random()*c.width, y: Math.random()*c.height, r: Math.random()*1.8+0.6, s: Math.random()*0.3+0.05, a: Math.random()*0.6+0.2 });
+    function particles(){
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.globalCompositeOperation = 'lighter';
+      for(const p of P){
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3);
+        g.addColorStop(0, `rgba(190,170,220,${0.12*p.a})`);
+        g.addColorStop(1, `rgba(90,60,140,0)`);
+        ctx.fillStyle = g; ctx.fill();
+        p.y -= p.s; p.x += Math.sin(p.y*0.01)*0.05; // dérive douce
+        if(p.y < -10){ p.y = c.height + 10; p.x = Math.random()*c.width; }
+      }
+      requestAnimationFrame(particles);
+    }
+    particles();
+
+    // Léger parallax sur mouvement souris (optionnel)
+    addEventListener('mousemove', (e)=>{
+      const cx = e.clientX/innerWidth - 0.5; const cy = e.clientY/innerHeight - 0.5;
+      title.style.transform = `translate(${cx*6}px, ${cy*4}px) scale(${1 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--glow'))-0.6)*0.02})`;
+    });
+  </script>
+</body>
+</html>
