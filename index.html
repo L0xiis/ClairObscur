@@ -75,7 +75,7 @@
     const bar = document.getElementById('bar');
     let pct = 0;
     function tick(){
-      pct += Math.random()*5 + 3;
+      pct += Math.random()*3 + 1;
       if(pct > 100) pct = 100;
       bar.style.width = pct + '%';
       if(pct < 100){
