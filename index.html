@@ -13,10 +13,10 @@
       --glow: 0.9;
     }
     html, body { margin:0; padding:0; height:100%; overflow:hidden; font-family:'Cinzel Decorative',serif; }
-    body { position:relative; background:url('./background.jpg') center/cover no-repeat fixed; }
+    body { position:relative; background: center/cover no-repeat fixed; }
     .brightness { position:fixed; inset:0; background:rgba(255,255,255,.08); pointer-events:none; }
 
-    #center { position:absolute; left:50%; top:332px; transform:translate(-50%, -50%); text-align:center; z-index:2; }
+    #center { position:absolute; left:50%; top:512px; transform:translate(-50%, -50%); text-align:center; z-index:2; }
     #viz-wrap{ display:flex; justify-content:center; align-items:flex-end; width:100%; pointer-events:none; position:relative; margin-bottom:8px; }
     #viz{ width:min(1100px, 90vw); height:78px; }
 
@@ -46,11 +46,26 @@
   <audio id="music" autoplay loop preload="auto" playsinline></audio>
 
   <script>
+    // 0) Backgrounds aléatoires: ajoute tes images ici
+    const backgrounds = [
+      './background.jpg',
+      './background2.png' // ajoute d'autres fichiers si besoin
+    ];
+    function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    (function setRandomBackground(){
+      const chosen = pickRandom(backgrounds);
+      document.body.style.backgroundImage = `url('${chosen}')`;
+      document.body.style.backgroundPosition = 'center';
+      document.body.style.backgroundSize = 'cover';
+      document.body.style.backgroundRepeat = 'no-repeat';
+      document.body.style.backgroundAttachment = 'fixed';
+    })();
+
     // 1) Barre de chargement par "tic"
     const bar = document.getElementById('bar');
     let pct = 0;
     function tick(){
-      pct += Math.random()*3 + 1;
+      pct += Math.random()*5 + 3;
       if(pct > 100) pct = 100;
       bar.style.width = pct + '%';
       if(pct < 100){
