@@ -9,7 +9,7 @@
   <style>
     :root{
       --glow: 0.7;          /* intensité de lueur (pilotée par la musique) */
-      --barSpeed: 4s;       /* vitesse de l'onde sur la barre (pilotée par la musique) */
+      --barSpeed: 6s;       /* vitesse de l'onde sur la barre (pilotée par la musique) */
       --accent1: #2e1f47;
       --accent2: #5c3b91;
       --accent3: #9d7bc0;
@@ -44,12 +44,16 @@
       mix-blend-mode: screen;
     }
     @keyframes shimmer{ from{ background-position: -120% 0; } to{ background-position: 120% 0; } }
+      #viz-wrap{ display:flex; justify-content:center; align-items:flex-end; width:100%; pointer-events:none; position:relative; z-index:2; margin-bottom:8px; }
+    #viz{ width:min(1100px, 90vw); height:78px; }
+    /* Ligne de base (dessinée dans le canvas) */
   </style>
 </head>
 <body>
-  <canvas id="fx"></canvas>
-  <div class="vignette" aria-hidden="true"></div>
-
+  <!-- Visualiseur audio: ligne + barres synchronisées avec la musique -->
+  <div id="viz-wrap" aria-hidden="true">
+    <canvas id="viz"></canvas>
+  </div>
   <h1>Clair Obscur : Pentacle</h1>
 
   <div class="progress-container" aria-label="Chargement">
@@ -116,6 +120,94 @@
       try{ music.load(); }catch(e){}
     }
     initMusic();
+
+    // Visualiseur audio (barres verticales au-dessus du titre)
+    (function(){
+      const canvas = document.getElementById('viz');
+      const wrap = document.getElementById('viz-wrap');
+      if(!canvas || !music) return;
+      const ctx = canvas.getContext('2d');
+      let audioCtx, analyser, data, raf;
+
+      function resize(){
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.floor(rect.width * devicePixelRatio);
+        canvas.height = Math.floor(rect.height * devicePixelRatio);
+      }
+      resize();
+      addEventListener('resize', resize);
+
+      function ensureAudio(){
+        if(audioCtx) return;
+        audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+        const src = audioCtx.createMediaElementSource(music);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 1024; // résolution suffisante
+        src.connect(analyser); analyser.connect(audioCtx.destination);
+        data = new Uint8Array(analyser.frequencyBinCount);
+      }
+
+      function draw(){
+        if(!analyser) return raf=requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(data);
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+
+        // Couleurs et style en harmonie avec le thème
+        const base = 'rgba(245, 241, 232, 0.85)'; // #f5f1e8
+        const tip = 'rgba(157, 123, 192, 0.95)';  // violet
+        const bgLine = 'rgba(255,255,255,0.15)';
+
+        // Ligne de base
+        const baseline = Math.floor(h*0.82);
+        ctx.strokeStyle = bgLine; ctx.lineWidth = Math.max(2, h*0.02);
+        ctx.beginPath(); ctx.moveTo(0, baseline); ctx.lineTo(w, baseline); ctx.stroke();
+
+        // Barres
+        const barGap = Math.max(2, Math.floor(w/220));
+        const barWidth = Math.max(3*devicePixelRatio, Math.floor((w/(barGap+3)) / 28));
+        const count = Math.min(180, Math.floor(w/(barWidth+barGap)));
+        const step = Math.floor(data.length / (count*1.2));
+        let x = 0;
+        for(let i=0;i<count;i++){
+          let sum=0; let c=0; for(let k=0;k<step;k++){ const idx=i*step+k; if(idx<data.length){ sum+=data[idx]; c++; } }
+          const avg = c? sum/c : 0;
+          const norm = Math.min(1, avg/180); // normalisation douce
+          const barH = Math.max(4*devicePixelRatio, norm * (h*0.72));
+          const y = baseline - barH;
+          // dégradé vertical
+          const grad = ctx.createLinearGradient(0,y,0,baseline);
+          grad.addColorStop(0, tip); grad.addColorStop(1, base);
+          ctx.fillStyle = grad;
+          // barres arrondies
+          const r = Math.min(barWidth*0.45, 8*devicePixelRatio);
+          roundRect(ctx, x, y, barWidth, barH, r);
+          ctx.fill();
+          x += barWidth + barGap;
+        }
+        raf=requestAnimationFrame(draw);
+      }
+
+      function roundRect(ctx, x, y, w, h, r){
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.closePath();
+      }
+
+      // Démarrage lié à la musique
+      function startViz(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended'){ audioCtx.resume().catch(()=>{}); } cancelAnimationFrame(raf); draw(); }
+      music.addEventListener('play', startViz);
+      music.addEventListener('pause', ()=> cancelAnimationFrame(raf));
+      if(!music.paused) startViz();
+    })();
 
     // Particules fines (poussière lumineuse)
     const c = document.getElementById('fx'); const ctx = c.getContext('2d');
