@@ -16,7 +16,7 @@
     body { position:relative; background: center/cover no-repeat fixed; }
     .brightness { position:fixed; inset:0; background:rgba(255,255,255,.08); pointer-events:none; }
 
-    #center { position:absolute; left:50%; top:512px; transform:translate(-50%, -50%); text-align:center; z-index:2; }
+    #center { position:absolute; left:50%; transform:translateX(-50%); text-align:center; z-index:2; }
     #viz-wrap{ display:flex; justify-content:center; align-items:flex-end; width:100%; pointer-events:none; position:relative; margin-bottom:8px; }
     #viz{ width:min(1100px, 90vw); height:78px; }
 
@@ -46,10 +46,20 @@
   <audio id="music" autoplay loop preload="auto" playsinline></audio>
 
   <script>
+    // Repositionner le titre pour qu'il soit toujours au centre entre le haut de l'écran et le haut de la barre
+    function positionCenter(){
+      const pc = document.querySelector('.progress-container');
+      const progressTop = window.innerHeight - (pc?.offsetHeight || 56);
+      const mid = progressTop / 2; // milieu entre le haut de l'écran et le haut de la barre
+      document.getElementById('center').style.top = mid + 'px';
+    }
+    positionCenter();
+    window.addEventListener('resize', positionCenter);
+
     // 0) Backgrounds aléatoires: ajoute tes images ici
     const backgrounds = [
       './background.jpg',
-      './background2.png' // ajoute d'autres fichiers si besoin
+      './background2.png'
     ];
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     (function setRandomBackground(){
@@ -65,7 +75,7 @@
     const bar = document.getElementById('bar');
     let pct = 0;
     function tick(){
-      pct += Math.random()*3 + 1;
+      pct += Math.random()*5 + 3;
       if(pct > 100) pct = 100;
       bar.style.width = pct + '%';
       if(pct < 100){
@@ -81,7 +91,6 @@
       './World.mp3',
       // './autre_titre_2.mp3'
     ];
-    function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     music.src = pickRandom(playlist);
 
     function initMusic(){
