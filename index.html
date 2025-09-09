@@ -51,7 +51,7 @@
       const pc = document.querySelector('.progress-container');
       const progressTop = window.innerHeight - (pc?.offsetHeight || 56);
       const mid = progressTop / 2;
-      document.getElementById('center').style.top = (mid - 40) + 'px'; // -40px pour remonter légèrement
+      document.getElementById('center').style.top = (mid - 30) + 'px'; // -40px pour remonter légèrement
     }
     positionCenter();
     window.addEventListener('resize', positionCenter);
@@ -88,7 +88,7 @@
     const music = document.getElementById('music');
     const playlist = [
       './Alicia.mp3',
-      // './autre_titre_1.mp3',
+      './World.mp3',
       // './autre_titre_2.mp3'
     ];
     music.src = pickRandom(playlist);
