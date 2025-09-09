@@ -51,7 +51,7 @@
       const pc = document.querySelector('.progress-container');
       const progressTop = window.innerHeight - (pc?.offsetHeight || 56);
       const mid = progressTop / 2;
-      document.getElementById('center').style.top = (mid - 75) + 'px'; // -40px pour remonter légèrement
+      document.getElementById('center').style.top = (mid - 85) + 'px'; // -40px pour remonter légèrement
     }
     positionCenter();
     window.addEventListener('resize', positionCenter);
@@ -59,7 +59,7 @@
     // 0) Backgrounds aléatoires
     const backgrounds = [
       './background.jpg',
-      './background2.jpg'
+      './background2.png'
     ];
     function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     (function setRandomBackground(){
