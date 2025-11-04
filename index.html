@@ -13,97 +13,93 @@
       --glow: 0.9;
     }
 
-    html, body { 
-      margin:0; 
-      padding:0; 
-      height:100%; 
-      overflow:hidden; 
-      font-family:'Cinzel Decorative',serif; 
+    html, body {
+      margin:0;
+      padding:0;
+      height:100%;
+      overflow:hidden;
+      font-family:'Cinzel Decorative',serif;
     }
-    body { 
-      position:relative; 
-      background: center/cover no-repeat fixed; 
-    }
-
-    .brightness { 
-      position:fixed; 
-      inset:0; 
-      background:rgba(255,255,255,.08); 
-      pointer-events:none; 
+    body {
+      position:relative;
+      background: center/cover no-repeat fixed;
     }
 
-    #center { 
-      position:absolute; 
-      left:50%; 
-      transform:translateX(-50%); 
-      text-align:center; 
-      z-index:2; 
+    .brightness {
+      position:fixed;
+      inset:0;
+      background:rgba(255,255,255,.08);
+      pointer-events:none;
     }
 
-    #viz-wrap {
-      display:flex; 
-      justify-content:center; 
-      align-items:flex-end; 
-      width:100%; 
-      pointer-events:none; 
-      position:relative; 
-      margin-bottom:8px; 
-    }
-
-    #viz {
-      width:min(1100px, 90vw); 
-      height:78px; 
-    }
-
-    h1 { 
-      color:#f5f1e8; 
-      font-size:60px; 
+    #center {
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
       text-align:center;
-      text-shadow: 0 0 calc(10px * var(--glow)) rgba(255,255,255,.8), 
-                   0 0 calc(30px * var(--glow)) rgba(157,123,192,.6), 
+      z-index:2;
+    }
+
+    #viz-wrap{
+      display:flex;
+      justify-content:center;
+      align-items:flex-end;
+      width:100%;
+      pointer-events:none;
+      position:relative;
+      margin-bottom:8px;
+    }
+
+    #viz{
+      width:min(1100px, 90vw);
+      height:78px;
+    }
+
+    h1 {
+      color:#f5f1e8;
+      font-size:60px;
+      text-align:center;
+      text-shadow: 0 0 calc(10px * var(--glow)) rgba(255,255,255,.8),
+                   0 0 calc(30px * var(--glow)) rgba(157,123,192,.6),
                    0 6px 18px rgba(0,0,0,.8);
-      margin:0; 
+      margin:0;
       padding:0 16px;
     }
 
-    /* Barre de chargement */
-    .progress-container { 
-      position:fixed; 
-      left:0; 
-      bottom:0; 
-      width:100%; 
-      height:56px; 
-      background:rgba(0,0,0,.68); 
-      box-shadow:inset 0 0 12px rgba(255,255,255,.18); 
-      overflow:hidden 
+    .progress-container {
+      position:fixed;
+      left:0;
+      bottom:0;
+      width:100%;
+      height:56px;
+      background:rgba(0,0,0,.68);
+      box-shadow:inset 0 0 12px rgba(255,255,255,.18);
+      overflow:hidden
     }
-
-    .progress-bar { 
-      position:relative; 
-      height:100%; 
-      width:0%; 
-      background:linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3)); 
-      box-shadow: 0 0 calc(25px * var(--glow)) rgba(156,120,192,.75); 
-      transition: width .2s linear; 
+    .progress-bar {
+      position:relative;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+      box-shadow: 0 0 calc(25px * var(--glow)) rgba(156,120,192,.75);
+      transition: width .2s linear;
     }
-
-    .progress-bar::before { 
-      content:""; 
-      position:absolute; 
-      inset:0; 
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); 
-      background-size: 220% 100%; 
-      filter: blur(6px); 
-      animation: shimmer 3.2s linear infinite; 
-      mix-blend-mode: screen; 
+    .progress-bar::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+      background-size: 220% 100%;
+      filter: blur(6px);
+      animation: shimmer 3.2s linear infinite;
+      mix-blend-mode: screen;
     }
-
-    @keyframes shimmer {
+    @keyframes shimmer{
       from{ background-position: -120% 0; }
       to{ background-position: 120% 0; }
     }
 
-    /* === Volume === */
+    /* === Volume en haut à gauche === */
     #volume-wrap {
       position: fixed;
       top: 14px;
@@ -118,13 +114,13 @@
       border-radius: 12px;
       box-shadow: 0 0 8px rgba(0,0,0,0.5);
       z-index: 10;
+      pointer-events: auto;
     }
-
     #volume {
       width: 110px;
       accent-color: var(--accent3);
+      pointer-events: auto;
     }
-
   </style>
 </head>
 <body>
@@ -133,7 +129,9 @@
   <!-- Contrôle du volume -->
   <div id="volume-wrap">
     🔊
-    <input id="volume" type="range" min="0" max="1" step="0.01" value="0.07">
+    <!-- on met l'action directement ici -->
+    <input id="volume" type="range" min="0" max="1" step="0.01" value="0.07"
+      oninput="if (window.music) { window.music.volume = parseFloat(this.value); }">
   </div>
 
   <div id="center">
@@ -173,7 +171,7 @@
       document.body.style.backgroundAttachment = 'fixed';
     })();
 
-    // 1) Barre de chargement par "tic"
+    // 1) Barre de chargement
     const bar = document.getElementById('bar');
     let pct = 0;
     function tick(){
@@ -187,46 +185,47 @@
     tick();
 
     // 2) Musique aléatoire
-    const music = document.getElementById('music');
+    // >>> ici on met sur window pour que le HTML puisse y accéder
+    window.music = document.getElementById('music');
     const playlist = [
       './Alicia.mp3',
       './World.mp3',
     ];
-    music.src = pickRandom(playlist);
+    window.music.src = pickRandom(playlist);
 
     function initMusic(){
-      const DEFAULT_VOL = 0.07; // volume réduit (7%)
-      try { music.volume = DEFAULT_VOL; } catch(e) {}
+      const DEFAULT_VOL = 0.07; // volume réduit
+      try { window.music.volume = DEFAULT_VOL; } catch(e) {}
 
-      // slider volume
       const volInput = document.getElementById('volume');
       if (volInput) {
         volInput.value = DEFAULT_VOL;
+        // listener de backup
         volInput.addEventListener('input', () => {
-          music.volume = parseFloat(volInput.value);
+          window.music.volume = parseFloat(volInput.value);
         });
       }
 
       const START_AT = 0.05;
-      const tryPlay = () => music.play().catch(()=>{});
-      music.addEventListener('canplaythrough', () => {
-        if (music.currentTime < START_AT) {
-          try { music.currentTime = START_AT; } catch(e) {}
+      const tryPlay = () => window.music.play().catch(()=>{});
+      window.music.addEventListener('canplaythrough', () => {
+        if (window.music.currentTime < START_AT) {
+          try { window.music.currentTime = START_AT; } catch(e) {}
         }
         tryPlay();
       }, { once:true });
       document.addEventListener('visibilitychange', () => { if(!document.hidden) tryPlay(); });
-      try { music.load(); } catch(e) {}
+      try { window.music.load(); } catch(e) {}
     }
     initMusic();
 
     // 3) Visualiseur audio
     (function(){
-      const canvas = document.getElementById('viz'); if(!canvas || !music) return; const ctx = canvas.getContext('2d');
+      const canvas = document.getElementById('viz'); if(!canvas || !window.music) return; const ctx = canvas.getContext('2d');
       let audioCtx, analyser, data, raf;
       function resize(){ const rect = canvas.getBoundingClientRect(); canvas.width = Math.floor(rect.width * devicePixelRatio); canvas.height = Math.floor(rect.height * devicePixelRatio); }
       resize(); addEventListener('resize', resize);
-      function ensureAudio(){ if(audioCtx) return; audioCtx = new (window.AudioContext||window.webkitAudioContext)(); const src = audioCtx.createMediaElementSource(music); analyser = audioCtx.createAnalyser(); analyser.fftSize = 1024; src.connect(analyser); analyser.connect(audioCtx.destination); data = new Uint8Array(analyser.frequencyBinCount); }
+      function ensureAudio(){ if(audioCtx) return; audioCtx = new (window.AudioContext||window.webkitAudioContext)(); const src = audioCtx.createMediaElementSource(window.music); analyser = audioCtx.createAnalyser(); analyser.fftSize = 1024; src.connect(analyser); analyser.connect(audioCtx.destination); data = new Uint8Array(analyser.frequencyBinCount); }
       function draw(){ if(!analyser){ raf=requestAnimationFrame(draw); return; } analyser.getByteFrequencyData(data); const w=canvas.width, h=canvas.height; ctx.clearRect(0,0,w,h);
         const base='rgba(245,241,232,0.85)', tip='rgba(157,123,192,0.95)', bgLine='rgba(255,255,255,0.15)';
         const baseline=Math.floor(h*0.82); ctx.strokeStyle=bgLine; ctx.lineWidth=Math.max(2,h*0.02); ctx.beginPath(); ctx.moveTo(0,baseline); ctx.lineTo(w,baseline); ctx.stroke();
@@ -236,7 +235,7 @@
       }
       function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); }
       function startViz(){ ensureAudio(); if(audioCtx && audioCtx.state==='suspended'){ audioCtx.resume().catch(()=>{}); } cancelAnimationFrame(raf); draw(); }
-      music.addEventListener('play', startViz); if(!music.paused) startViz();
+      window.music.addEventListener('play', startViz); if(!window.music.paused) startViz();
     })();
   </script>
 </body>
